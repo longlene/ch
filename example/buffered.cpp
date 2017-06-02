@@ -3,14 +3,13 @@
 #include "../include/chan.hpp"
 
 using namespace std;
-using namespace channel;
 
 int main(int argc, char const* argv[])
 {
     chan<string, 2> ch;
     ch.send("buffered");
-    //ch << "buffered" << "channel";
-    ch.send("channel");
+    //ch << "buffered" << "ch";
+    ch.send("ch");
 
     string s;
     ch.recv(s);

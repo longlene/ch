@@ -3,7 +3,6 @@
 #include "../include/chan.hpp"
 
 using namespace std;
-using namespace channel;
 
 void ping(chan<string> &ch)
 {

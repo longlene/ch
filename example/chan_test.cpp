@@ -2,7 +2,6 @@
 #include "../include/chan.hpp"
 
 using namespace std;
-using namespace channel;
 int main(int argc, char const* argv[])
 {
     chan<int, 1> ch;
