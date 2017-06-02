@@ -3,6 +3,7 @@ ch: Go chan like library for C++11.
 Header file only library.
 
 Example:
+
 [buffered.cpp](example/buffered.cpp)
 
 [ch10000.cpp](example/ch10000.cpp)
@@ -24,3 +25,5 @@ ch.recv(s);
 
 std::cout << s << '\n';
 ```
+
+Inspired by https://github.com/tylertreat/chan
