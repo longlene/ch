@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "../include/chan.hpp"
+#include "chan.hpp"
 
 using namespace std;
 

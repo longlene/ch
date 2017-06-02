@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/chan.hpp"
+#include "chan.hpp"
 
 using namespace std;
 int main(int argc, char const* argv[])

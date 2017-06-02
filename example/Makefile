@@ -1,4 +1,4 @@
-CXXFLAGS=-std=c++11
+CXXFLAGS=-std=c++11 -I../include
 LDFLAGS=-pthread
 
 all: chan_test buffered unbuffered ch10000
