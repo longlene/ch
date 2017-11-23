@@ -10,17 +10,17 @@ class chan
         chan() {}
         int close()
         {
-            int success = 0;
+            int succ = 0;
             std::lock_guard<std::mutex> lock(m_mu);
             if (closed) {
-                success = -1;
+                succ = -1;
                 errno = EPIPE;
             } else {
                 closed = true;
                 r_cond.notify_all();
                 w_cond.notify_all();
             }
-            return success;
+            return succ;
         }
         int send(const T &t)
         {
@@ -61,6 +61,27 @@ class chan
             return 0;
         }
 
+        chan &operator<<(T &&t)
+        {
+            if (closed) {
+                errno = EPIPE;
+            } else {
+
+                std::unique_lock<std::mutex> lock(m_mu);
+                while (q.size() == capacity) {
+                    w_waiting++;
+                    w_cond.wait(lock);
+                    w_waiting--;
+                }
+                q.push(std::move(t));
+                if (r_waiting > 0)
+                    r_cond.notify_one();
+
+                lock.unlock();
+            }
+            return *this;
+        }
+
         int recv(T &data)
         {
             std::unique_lock<std::mutex> lock(m_mu);
@@ -82,10 +103,36 @@ class chan
             lock.unlock();
             return 0;
         }
+        chan &operator>>(T &t)
+        {
+            std::unique_lock<std::mutex> lock(m_mu);
+            while (q.empty()) {
+                if (closed) {
+                    m_mu.unlock();
+                    errno = EPIPE;
+                    return *this;
+                }
+
+                r_waiting++;
+                r_cond.wait(lock);
+                r_waiting--;
+            }
+            t = q.front();
+            q.pop();
+            if (w_waiting > 0)
+                w_cond.notify_one();
+            lock.unlock();
+            return *this;
+        }
         int size()
         {
             std::lock_guard<std::mutex> lock(m_mu);
             return q.size();
+        }
+        operator bool() const
+        {
+            std::lock_guard<std::mutex> lock(m_mu);
+            return !(closed && q.empty());
         }
     private:
         std::queue<T> q;
@@ -106,24 +153,20 @@ class chan<T, 0>
         chan() {}
         int close()
         {
-            int success = 0;
+            int succ = 0;
             std::lock_guard<std::mutex> lock(m_mu);
             if (closed) {
-                success = -1;
+                succ = -1;
                 errno = EPIPE;
             } else {
                 closed = true;
                 r_cond.notify_all();
                 w_cond.notify_all();
             }
-            return success;
+            return succ;
         }
         int send(const T &t)
         {
-            if (closed) {
-                errno = EPIPE;
-                return -1;
-            }
             std::lock_guard<std::mutex> glock(w_mu);
             std::unique_lock<std::mutex> lock(m_mu);
             if (closed) {
@@ -138,7 +181,6 @@ class chan<T, 0>
                 r_cond.notify_one();
 
             w_cond.wait(lock);
-            w_waiting--;
 
             lock.unlock();
 
@@ -147,10 +189,6 @@ class chan<T, 0>
 
         int send(T &&t)
         {
-            if (closed) {
-                errno = EPIPE;
-                return -1;
-            }
             std::lock_guard<std::mutex> glock(w_mu);
             std::unique_lock<std::mutex> lock(m_mu);
             if (closed) {
@@ -165,11 +203,16 @@ class chan<T, 0>
                 r_cond.notify_one();
 
             w_cond.wait(lock);
-            w_waiting--;
 
             lock.unlock();
 
             return 0;
+        }
+
+        chan &operator<<(T &&t)
+        {
+            send(std::forward<T>(t));
+            return *this;
         }
 
         int recv(T &data)
@@ -188,13 +231,24 @@ class chan<T, 0>
                 return -1;
             }
             data = t;
+            w_waiting--;
+
             w_cond.notify_one();
             lock.unlock();
             return 0;
         }
+        chan &operator>>(T &t)
+        {
+            recv(t);
+            return *this;
+        }
         int size()
         {
             return 0;
+        }
+        operator bool() const
+        {
+            return !closed;
         }
     private:
         T t;

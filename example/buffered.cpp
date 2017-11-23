@@ -7,15 +7,13 @@ using namespace std;
 int main(int argc, char const* argv[])
 {
     chan<string, 2> ch;
-    ch.send("buffered");
-    //ch << "buffered" << "ch";
-    ch.send("ch");
+    ch << "buffered" << "ch";
 
     string s;
-    ch.recv(s);
+    ch >> s;
     cout << s << '\n';
 
-    ch.recv(s);
+    ch >> s;
     cout << s << '\n';
 
 

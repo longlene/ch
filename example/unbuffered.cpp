@@ -6,8 +6,7 @@ using namespace std;
 
 void ping(chan<string> &ch)
 {
-    ch.send("ping");
-    //ch << "ping";
+    ch << "ping";
 }
 
 int main(int argc, char const* argv[])
@@ -16,8 +15,7 @@ int main(int argc, char const* argv[])
     thread t(ping, std::ref(ch));
 
     string s;
-    ch.recv(s);
-    //ch >> s;
+    ch >> s;
     cout << s << '\n';
     t.join();
 

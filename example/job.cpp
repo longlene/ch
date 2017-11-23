@@ -6,9 +6,10 @@ using namespace std;
 
 void ping(chan<string> &ch)
 {
-    for (int i = 0; i < 10000; ++i)
-        ch.send("ping");
-        //ch << "ping";
+    string s;
+    int cnt = 0;
+    while (ch >>s)
+        cout << ++cnt << " -> " << s << '\n';
 }
 
 int main(int argc, char const* argv[])
@@ -18,9 +19,7 @@ int main(int argc, char const* argv[])
 
     string s;
     for (int i = 0; i < 10000; ++i) {
-        //ch >> s;
-        ch.recv(s);
-        cout << i << " >> " << s << '\n';
+        ch << "ping";
     }
 
     ch.close();
