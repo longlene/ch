@@ -14,16 +14,33 @@ Example:
 
 
 ```c++
+#include <thread>
 #include <iostream>
-#include <chan.hpp>
+#include "chan.hpp"
 
-chan<std::string, 1> ch;
-ch << "hello";
+using namespace std;
 
-std::string s;
-ch >> s;
+void worker(chan<string> &ch)
+{
+    string s;
+    int cnt = 0;
+    while (ch >> s)
+        cout << ++cnt << " -> " << s << '\n';
+}
 
-std::cout << s << '\n';
+int main(int argc, char const* argv[])
+{
+    chan<string> ch;
+    thread t(worker, std::ref(ch));
+
+    for (int i = 0; i < 10000; ++i) {
+        ch << "ping";
+    }
+
+    ch.close();
+    t.join();
+    return 0;
+}
 ```
 
 Inspired by https://github.com/tylertreat/chan
