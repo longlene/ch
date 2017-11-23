@@ -6,7 +6,7 @@ Example:
 
 [buffered.cpp](example/buffered.cpp)
 
-[job.cpp](example/ch10000.cpp)
+[job.cpp](example/job.cpp)
 
 [chan_test.cpp](example/chan_test.cpp)
 
