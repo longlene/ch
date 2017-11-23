@@ -6,7 +6,7 @@ Example:
 
 [buffered.cpp](example/buffered.cpp)
 
-[ch10000.cpp](example/ch10000.cpp)
+[job.cpp](example/ch10000.cpp)
 
 [chan_test.cpp](example/chan_test.cpp)
 
@@ -18,10 +18,10 @@ Example:
 #include <chan.hpp>
 
 chan<std::string, 1> ch;
-ch.send("hello");
+ch << "hello";
 
 std::string s;
-ch.recv(s);
+ch >> s;
 
 std::cout << s << '\n';
 ```
